@@ -1,0 +1,54 @@
+require "test_helper"
+
+class WeatherServiceTest < ActiveSupport::TestCase
+  setup do
+    @service = WeatherService.new
+    @valid_api_key = "test_api_key"
+    @test_city = "London"
+  end
+
+  test "celsius_to_fahrenheit converts correctly" do
+    assert_equal 32.0, @service.send(:celsius_to_fahrenheit, 0)
+    assert_equal 68.0, @service.send(:celsius_to_fahrenheit, 20)
+    assert_equal 212.0, @service.send(:celsius_to_fahrenheit, 100)
+  end
+
+  test "parse_weather_response formats data correctly" do
+    api_response = {
+      "name" => "New York",
+      "main" => { "temp" => 25.0 },
+      "weather" => [ { "description" => "partly cloudy", "icon" => "02d" } ]
+    }
+
+    result = @service.send(:parse_weather_response, api_response)
+
+    expected = {
+      city: "New York",
+      temp_c: 25.0,
+      temp_f: 77.0,  # 25°C = 77°F
+      condition: "Partly Cloudy",
+      icon: "02d"
+    }
+
+    assert_equal expected, result
+  end
+
+  test "fetch_weather_by_city with missing API key returns nil" do
+    # Test with a service that has no API key configured
+    service = WeatherService.new
+    # Temporarily set the API key to nil to simulate missing credentials
+    service.instance_variable_set(:@api_key, nil)
+
+    result = service.send(:fetch_weather_by_city, @test_city)
+    assert_nil result
+  end
+
+  test "fetch_weather_by_city with placeholder API key returns nil" do
+    # Test with placeholder API key
+    service = WeatherService.new
+    service.instance_variable_set(:@api_key, "YOUR_API_KEY_HERE")
+
+    result = service.send(:fetch_weather_by_city, @test_city)
+    assert_nil result
+  end
+end
