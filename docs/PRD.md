@@ -1,6 +1,6 @@
 # Product Requirements Document (PRD)
 
-**Product Name:** Weather Compare  
+**Product Name:** Temperature Compare  
 **Goal:** Enable users to compare weather across multiple cities in both Celsius and Fahrenheit, side-by-side.
 
 ---

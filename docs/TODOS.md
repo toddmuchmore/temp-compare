@@ -1,4 +1,4 @@
-# Weather Compare – TODOs
+# Temperature Compare – TODOs
 
 ## Phase 1 – MVP
 - [x] Create new Rails 8 app with Tailwind: `rails new weather_compare --css=tailwind`
