@@ -10,5 +10,8 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Defines the root path route ("/")
-  # root "posts#index"
+  root "cities#index"
+
+  resources :cities, only: [ :index, :create ]
+  delete "cities/:city_name", to: "cities#destroy", as: :remove_city
 end

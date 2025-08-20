@@ -8,15 +8,16 @@
   - [x] Fetch weather by city name
   - [x] Convert Kelvin → Celsius & Fahrenheit
   - [x] Return normalized hash `{ city, temp_c, temp_f, condition, icon }`
-- [ ] Add `CitiesController`
-  - [ ] `index` action → list selected cities
-  - [ ] `create` action → add city (store in `session[:cities]`)
-  - [ ] `destroy` action → remove city
-- [ ] Build `index.html.erb` view
-  - [ ] Form to add city
-  - [ ] Table/grid of cities with °C, °F, condition, icon
-  - [ ] “Remove” button per row
-- [ ] Style with Tailwind (responsive grid, clean minimal look)
+- [x] Add `CitiesController`
+  - [x] `index` action → list selected cities
+  - [x] `create` action → add city (store in `session[:cities]`)
+  - [x] `destroy` action → remove city
+- [x] Build `index.html.erb` view
+  - [x] Form to add city
+  - [x] Table/grid of cities with °C, °F, condition, icon
+  - [x] "Remove" button per row
+- [x] Style with Tailwind (responsive grid, clean minimal look)
+- [x] Add comprehensive tests for CitiesController
 - [ ] Deploy to Render / Fly.io / Heroku
 
 ---

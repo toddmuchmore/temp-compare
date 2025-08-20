@@ -2,6 +2,10 @@ class WeatherService
   include HTTParty
   base_uri "http://api.openweathermap.org/data/2.5"
 
+  def self.get_weather(city_name)
+    new.fetch_weather_by_city(city_name)
+  end
+
   def initialize
     @api_key = Rails.application.credentials.openweathermap[:api_key]
   end
