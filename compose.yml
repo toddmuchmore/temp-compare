@@ -5,7 +5,7 @@ services:
       - ./log:/rails/log
       - ./storage:/rails/storage
     ports:
-      - "3000:3000"
+      - "3001:3000"
     secrets:
       - source: master_key
         target: /rails/config/master.key
