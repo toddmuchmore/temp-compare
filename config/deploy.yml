@@ -7,7 +7,7 @@ image: toddmuchmore/temp-compare
 # Deploy to these servers.
 servers:
   web:
-    - 10.0.0.248
+    - 10.0.0.33
   # job:
   #   hosts:
   #     - 192.168.0.1
@@ -76,11 +76,11 @@ asset_path: /rails/public/assets
 
 # Configure the image builder.
 builder:
-  arch: arm
+  arch: amd64
   # delete this once complete - this will deploy files that are on the local system
   # rather than the last commit
   context: .
-  remote: ssh://pi@10.0.0.248
+  remote: ssh://todd@10.0.0.33
   local: false
 
   # # Build image via remote server (useful for faster amd64 builds on arm64 computers)
@@ -95,7 +95,7 @@ builder:
 
 # Use a different ssh user than root
 ssh:
-  user: pi 
+  user: todd 
 
 # Use accessory services (secrets come from .kamal/secrets).
 # accessories:
