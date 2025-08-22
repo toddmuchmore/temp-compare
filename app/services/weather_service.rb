@@ -13,18 +13,21 @@ class WeatherService
   def fetch_weather_by_city(city_name)
     return nil if @api_key.blank? || @api_key == "YOUR_API_KEY_HERE"
 
-    response = self.class.get("/weather", {
-      query: {
-        q: city_name,
-        appid: @api_key,
-        units: "metric"  # This will give us Celsius directly
-      }
-    })
+    cache_key = "weather_#{city_name.downcase.strip}"
+    Rails.cache.fetch(cache_key, expires_in: 15.minutes) do
+      response = self.class.get("/weather", {
+        query: {
+          q: city_name,
+          appid: @api_key,
+          units: "metric"  # This will give us Celsius directly
+        }
+      })
 
-    if response.success?
-      parse_weather_response(response.parsed_response)
-    else
-      nil
+      if response.success?
+        parse_weather_response(response.parsed_response)
+      else
+        nil
+      end
     end
   end
 
