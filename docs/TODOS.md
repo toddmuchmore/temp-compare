@@ -18,7 +18,7 @@
   - [x] "Remove" button per row
 - [x] Style with Tailwind (responsive grid, clean minimal look)
 - [x] Add comprehensive tests for CitiesController
-- [ ] Deploy to Render / Fly.io / Heroku
+- [x] Deploy to Render / Fly.io / Heroku
 
 ---
 
