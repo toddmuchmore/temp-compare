@@ -18,6 +18,10 @@ A minimal web app to compare current weather across multiple cities in both Cels
 1. Clone the repository.
 2. Install dependencies: `bundle install`
 3. Set up credentials: `rails credentials:edit` and add your OpenWeatherMap API key.
+```yaml
+openweathermap:
+  api_key: YOUR_API_KEY_GOES_HERE
+```
 4. Run migrations: `rails db:migrate`
 5. Start the server: `rails server`
 
