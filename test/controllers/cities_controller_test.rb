@@ -80,4 +80,18 @@ class CitiesControllerTest < ActionController::TestCase
     assert_redirected_to root_path
     assert_equal [ "London" ], session[:cities]
   end
+
+  test "should handle unavailable weather data" do
+    session[:cities] = [ "UnknownCity" ]
+
+    # Mock the WeatherService to return nil for unavailable data
+    def WeatherService.get_weather(city)
+      nil
+    end
+
+    get :index
+    assert_response :success
+    assert_equal [ "UnknownCity" ], assigns(:cities)
+    assert_equal [ nil ], assigns(:weather_data)
+  end
 end

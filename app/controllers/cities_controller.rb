@@ -1,6 +1,7 @@
 class CitiesController < ApplicationController
   def index
     @cities = session[:cities] || []
+    @weather_data = @cities.map { |city_name| WeatherService.get_weather(city_name) }
   end
 
   def create
