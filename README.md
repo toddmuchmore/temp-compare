@@ -1,24 +1,33 @@
-# README
+# Temperature Compare
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A minimal web app to compare current weather across multiple cities in both Celsius and Fahrenheit, powered by OpenWeatherMap API.
 
-Things you may want to cover:
+## Features
+- Search and add cities by name.
+- Display temperatures in °C and °F side-by-side.
+- Show weather conditions with icons.
+- Persist selected cities in session.
+- Responsive design with Tailwind CSS.
 
-* Ruby version
+## Prerequisites
+- Ruby 3.2+ (check `.ruby-version`)
+- Rails 8
+- OpenWeatherMap API key
 
-* System dependencies
+## Setup
+1. Clone the repository.
+2. Install dependencies: `bundle install`
+3. Set up credentials: `rails credentials:edit` and add your OpenWeatherMap API key.
+4. Run migrations: `rails db:migrate`
+5. Start the server: `rails server`
 
-* Configuration
+## Usage
+- Visit the homepage to add cities and view weather comparisons.
+- Add/remove cities via the form and buttons.
 
-* Database creation
+## Testing
+- Run tests: `rails test`
 
-* Database initialization
+## Deployment
+- Deploy to Render, Fly.io, or Heroku using provided configs.
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
