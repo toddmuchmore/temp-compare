@@ -20,9 +20,9 @@ class CitiesControllerTest < ActionController::TestCase
     def WeatherService.get_weather(city)
       case city
       when "London"
-        { city: "London", temp_c: 15.0, temp_f: 59.0, condition: "Cloudy", icon: "04d" }
+        { city: "London", temp_c: 15.0, temp_f: 59.0, temp_min_c: 12.0, temp_min_f: 53.6, temp_max_c: 18.0, temp_max_f: 64.4, condition: "Cloudy", icon: "04d" }
       when "New York"
-        { city: "New York", temp_c: 20.0, temp_f: 68.0, condition: "Sunny", icon: "01d" }
+        { city: "New York", temp_c: 20.0, temp_f: 68.0, temp_min_c: 17.0, temp_min_f: 62.6, temp_max_c: 23.0, temp_max_f: 73.4, condition: "Sunny", icon: "01d" }
       else
         nil
       end
@@ -32,8 +32,8 @@ class CitiesControllerTest < ActionController::TestCase
     assert_response :success
     assert_equal [ "London", "New York" ], assigns(:cities)
     expected_weather = [
-      { city: "London", temp_c: 15.0, temp_f: 59.0, condition: "Cloudy", icon: "04d" },
-      { city: "New York", temp_c: 20.0, temp_f: 68.0, condition: "Sunny", icon: "01d" }
+      { city: "London", temp_c: 15.0, temp_f: 59.0, temp_min_c: 12.0, temp_min_f: 53.6, temp_max_c: 18.0, temp_max_f: 64.4, condition: "Cloudy", icon: "04d" },
+      { city: "New York", temp_c: 20.0, temp_f: 68.0, temp_min_c: 17.0, temp_min_f: 62.6, temp_max_c: 23.0, temp_max_f: 73.4, condition: "Sunny", icon: "01d" }
     ]
     assert_equal expected_weather, assigns(:weather_data)
   end
