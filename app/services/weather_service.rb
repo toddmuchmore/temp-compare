@@ -7,7 +7,7 @@ class WeatherService
   end
 
   def initialize
-    @api_key = Rails.application.credentials.openweathermap[:api_key]
+    @api_key = Rails.application.credentials.dig(:openweathermap, :api_key)
   end
 
   def fetch_weather_by_city(city_name)
