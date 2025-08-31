@@ -75,7 +75,7 @@ class WeatherServiceTest < ActiveSupport::TestCase
         # Mock geocoding response
         Struct.new(:success?, :parsed_response).new(
           true,
-          [{ "lat" => 51.5074, "lon" => -0.1278 }]
+          [ { "lat" => 51.5074, "lon" => -0.1278 } ]
         )
       else
         # Mock One Call API response
@@ -116,7 +116,7 @@ class WeatherServiceTest < ActiveSupport::TestCase
     # Mock geocoding API response
     mock_response = Struct.new(:success?, :parsed_response).new(
       true,
-      [{ "lat" => 51.5074, "lon" => -0.1278 }]
+      [ { "lat" => 51.5074, "lon" => -0.1278 } ]
     )
 
     WeatherService.define_singleton_method(:get) do |*args|
