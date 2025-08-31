@@ -38,22 +38,25 @@ class WeatherService
   private
 
   def get_coordinates(city_name)
-    response = self.class.get("http://api.openweathermap.org/geo/1.0/direct", {
-      query: {
-        q: city_name,
-        limit: 1,
-        appid: @api_key
-      }
-    })
+    cache_key = "coordinates_#{city_name.downcase.strip}"
+    Rails.cache.fetch(cache_key, expires_in: 1.week) do
+      response = self.class.get("http://api.openweathermap.org/geo/1.0/direct", {
+        query: {
+          q: city_name,
+          limit: 1,
+          appid: @api_key
+        }
+      })
 
-    if response.success? && response.parsed_response.any?
-      location = response.parsed_response.first
-      {
-        lat: location["lat"],
-        lon: location["lon"]
-      }
-    else
-      nil
+      if response.success? && response.parsed_response.any?
+        location = response.parsed_response.first
+        {
+          lat: location["lat"],
+          lon: location["lon"]
+        }
+      else
+        nil
+      end
     end
   end
 
