@@ -55,8 +55,7 @@ bin/brakeman                     # Security vulnerability scanning
 
 ### Data Storage
 - Session-based city persistence (no database models for cities)
-- Weather data cached for 15 minutes to reduce API calls
-- Uses SQLite for Rails cache storage via solid_cache gem
+- Weather data cached for 15 minutes using Rails in-memory cache store
 
 ### API Integration
 - OpenWeatherMap API key stored in Rails credentials: `rails.application.credentials.dig(:openweathermap, :api_key)`
@@ -74,7 +73,7 @@ bin/brakeman                     # Security vulnerability scanning
 - **HTTParty** for API requests
 - **Tailwind CSS** for styling
 - **Stimulus** for minimal JavaScript interactions
-- **solid_cache/solid_queue** for background jobs and caching
+- **solid_cable** for Action Cable connections
 - **rubocop-rails-omakase** for code style
 - **brakeman** for security scanning
 
