@@ -21,9 +21,71 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
+      - name: Wait for CI checks to complete
+        # Wait for the Rails CI workflow to complete before enabling auto-merge
+        # This prevents merging with failing tests or linting issues
+        if: |
+          steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
+          steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        run: |
+          echo "Waiting for CI checks to complete..."
+
+          # Wait up to 10 minutes for CI to complete
+          timeout=600
+          elapsed=0
+          interval=10
+
+          while [ $elapsed -lt $timeout ]; do
+            # Get the status of required checks (scan_ruby, scan_js, lint, test jobs)
+            check_status=$(gh pr checks "$PR_URL" --json name,status,conclusion | jq -r '.[] | select(.name == "scan_ruby" or .name == "scan_js" or .name == "lint" or .name == "test") | "\(.name):\(.status):\(.conclusion)"')
+
+            # Check if all required jobs are completed
+            all_completed=true
+            all_successful=true
+
+            while IFS= read -r check; do
+              name=$(echo "$check" | cut -d: -f1)
+              status=$(echo "$check" | cut -d: -f2)
+              conclusion=$(echo "$check" | cut -d: -f3)
+
+              if [ "$status" != "COMPLETED" ]; then
+                all_completed=false
+                echo "  $name: still running..."
+              elif [ "$conclusion" != "SUCCESS" ]; then
+                all_successful=false
+                echo "  $name: failed with conclusion '$conclusion'"
+              else
+                echo "  $name: passed"
+              fi
+            done <<< "$check_status"
+
+            # If all checks completed and all succeeded, we're done
+            if [ "$all_completed" = true ] && [ "$all_successful" = true ]; then
+              echo "All CI checks passed!"
+              break
+            fi
+
+            # If all checks completed but some failed, exit with error
+            if [ "$all_completed" = true ] && [ "$all_successful" = false ]; then
+              echo "CI checks failed. Not enabling auto-merge."
+              exit 1
+            fi
+
+            # Wait before checking again
+            sleep $interval
+            elapsed=$((elapsed + interval))
+          done
+
+          if [ $elapsed -ge $timeout ]; then
+            echo "Timeout waiting for CI checks to complete"
+            exit 1
+          fi
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Enable auto-merge for patch and minor updates
-        # Only auto-merge patch and minor updates, not major
-        # PR will merge automatically once all required checks pass
+        # Only enable auto-merge after CI checks have passed
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
           steps.metadata.outputs.update-type == 'version-update:semver-minor'
