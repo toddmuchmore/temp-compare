@@ -5,6 +5,7 @@ on:
     types: [opened, synchronize, reopened]
 
 permissions:
+  checks: read
   contents: write
   pull-requests: write
 
@@ -22,7 +23,7 @@ jobs:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Wait for CI checks to complete
-        # Wait for the Rails CI workflow to complete before enabling auto-merge
+        # Wait for the CI workflow to complete before enabling auto-merge
         # This prevents merging with failing tests or linting issues
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
@@ -36,26 +37,31 @@ jobs:
           interval=10
 
           while [ $elapsed -lt $timeout ]; do
-            # Get the status of required checks (scan_ruby, scan_js, lint, test jobs)
-            check_status=$(gh pr checks "$PR_URL" --json name,status,conclusion | jq -r '.[] | select(.name == "scan_ruby" or .name == "scan_js" or .name == "lint" or .name == "test") | "\(.name):\(.status):\(.conclusion)"')
+            # gh pr checks uses GraphQL statusCheckRollup, which is inaccessible to the
+            # restricted GITHUB_TOKEN in Dependabot workflows. Use the REST check-runs API
+            # instead, which respects the checks: read permission above.
+            pr_sha=$(gh pr view "$PR_URL" --json headRefOid --jq '.headRefOid')
+            check_status=$(gh api "repos/$GITHUB_REPOSITORY/commits/$pr_sha/check-runs" \
+              --jq '.check_runs[] | select(.name == "scan_ruby" or .name == "scan_js" or .name == "lint" or .name == "test") | "\(.name):\(.status):\(.conclusion)"')
 
             # Check if all required jobs are completed
             all_completed=true
             all_successful=true
 
             while IFS= read -r check; do
+              [ -z "$check" ] && continue
               name=$(echo "$check" | cut -d: -f1)
               status=$(echo "$check" | cut -d: -f2)
               conclusion=$(echo "$check" | cut -d: -f3)
 
-              if [ "$status" != "COMPLETED" ]; then
+              if [ "$status" != "completed" ]; then
                 all_completed=false
-                echo "  $name: still running..."
-              elif [ "$conclusion" != "SUCCESS" ]; then
+                echo "  $name: still running (status: $status)..."
+              elif [ "$conclusion" = "success" ]; then
+                echo "  $name: passed"
+              else
                 all_successful=false
                 echo "  $name: failed with conclusion '$conclusion'"
-              else
-                echo "  $name: passed"
               fi
             done <<< "$check_status"
 
