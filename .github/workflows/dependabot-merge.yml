@@ -1,0 +1,35 @@
+name: Dependabot Merge
+
+# Runs on a schedule rather than on pull_request because the token a
+# Dependabot-triggered run receives is read-only and cannot see
+# statusCheckRollup, which forced the previous workflow to poll the REST API
+# for a hardcoded list of job names. A scheduled run is not Dependabot-
+# triggered, so it gets the permissions below and can read checks by rollup --
+# and because CI has long since finished, there is nothing to poll for.
+on:
+  schedule:
+    - cron: "0 7 * * *" # 07:00 UTC, well after Dependabot's daily PRs and CI
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Report what would merge without merging"
+        type: boolean
+        default: true
+
+permissions:
+  checks: read
+  statuses: read
+  contents: write
+  pull-requests: write
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Merge eligible Dependabot PRs
+        run: bin/dependabot-merge --repo "$GITHUB_REPOSITORY" ${{ inputs.dry_run && '--dry-run' || '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
