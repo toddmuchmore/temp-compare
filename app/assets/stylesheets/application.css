@@ -1,10 +1,298 @@
-/*
- * This is a manifest file that'll be compiled into application.css.
- *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
- */
+/* Continental — cities as enamel destination plaques on a travel agent's wall. */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body, h1, h2, p, form, input, ul, li { margin: 0; }
+img, svg { display: block; max-width: 100%; }
+button, input { font: inherit; color: inherit; }
+
+:root {
+  --wall: #0f5257;
+  --wall-deep: #0a3c40;
+  --enamel: #f6efdf;
+  --ink: #16232a;
+  --signal: #d94f2b;
+  --ember: #e4813a;
+  --sun: #e9b02a;
+  --sea: #4cc0ad;
+  --frost: #5cabe0;
+  --keyline: 3px;
+}
+
+body {
+  background: var(--wall);
+  color: var(--enamel);
+  font-family: "Work Sans", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 2.5rem) 5rem;
+}
+
+.wall { max-width: 74rem; margin: 0 auto; }
+
+/* ---- header ------------------------------------------------------------ */
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem 2rem;
+  margin-bottom: 2.25rem;
+}
+
+.header h1 {
+  font-family: "Bricolage Grotesque", system-ui, sans-serif;
+  font-optical-sizing: auto;
+  font-size: clamp(2.1rem, 6.5vw, 3.8rem);
+  font-weight: 800;
+  line-height: 0.94;
+  letter-spacing: -0.03em;
+  max-width: 11ch;
+}
+
+.header p { color: #9fc4c3; max-width: 30ch; margin-top: 0.6rem; }
+
+/* ---- add a destination ------------------------------------------------- */
+
+.add { display: flex; gap: 0; width: min(100%, 25rem); }
+
+.add input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  background: var(--enamel);
+  color: var(--ink);
+  border: var(--keyline) solid var(--ink);
+  border-right: 0;
+  padding: 0.6rem 0.9rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+.add input[type="text"]::placeholder { color: #7d8a8c; }
+.add input[type="text"]:focus-visible { outline: 3px solid var(--sun); outline-offset: 0; }
+
+.add input[type="submit"] {
+  background: var(--signal);
+  color: var(--enamel);
+  border: var(--keyline) solid var(--ink);
+  padding: 0.6rem 1.3rem;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+.add input[type="submit"]:hover { background: var(--ember); }
+.add input[type="submit"]:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+
+/* ---- wall of plaques --------------------------------------------------- */
+
+.strip {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  background: var(--enamel);
+  color: var(--ink);
+  border: var(--keyline) solid var(--ink);
+  padding: 0.4rem 0.9rem;
+  margin-bottom: 1.25rem;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+.strip span { font-family: "Work Sans", sans-serif; font-weight: 500; font-size: 0.85rem; }
+
+.plaques {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1.25rem;
+}
+
+.plaque {
+  position: relative;
+  background: var(--enamel);
+  color: var(--ink);
+  border: var(--keyline) solid var(--ink);
+  display: flex;
+  flex-direction: column;
+}
+
+/* the two fixing screws every enamel sign on a wall has */
+.plaque::before,
+.plaque::after {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(22, 35, 42, 0.45);
+}
+.plaque::before { left: 0.5rem; }
+.plaque::after { right: 0.5rem; }
+
+.plaque__band {
+  background: var(--enamel-colour);
+  border-bottom: var(--keyline) solid var(--ink);
+  padding: 1.35rem 0.9rem 0.45rem;
+  text-align: center;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.plaque__name {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-optical-sizing: auto;
+  font-size: clamp(1.3rem, 2.4vw, 1.6rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  padding: 0.85rem 0.9rem 0;
+  text-align: center;
+  overflow-wrap: break-word;
+}
+
+.plaque__read {
+  padding: 0.35rem 0.9rem 0.9rem;
+  text-align: center;
+  font-family: "Bricolage Grotesque", sans-serif;
+}
+.plaque__c {
+  display: block;
+  font-size: clamp(3rem, 8vw, 4rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+.plaque__c sup { font-size: 0.4em; vertical-align: super; letter-spacing: 0; }
+.plaque__f {
+  display: block;
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: #3d4f56;
+  letter-spacing: -0.02em;
+}
+
+.plaque__today {
+  margin-top: auto;
+  border-top: var(--keyline) solid var(--ink);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+.plaque__today div { padding: 0.45rem 0.6rem; text-align: center; }
+.plaque__today div + div { border-left: 1px solid rgba(22, 35, 42, 0.25); }
+.plaque__today b { display: block; font-weight: 600; }
+.plaque__today i {
+  font-style: normal;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6c7b80;
+}
+
+.plaque__void {
+  padding: 1.5rem 0.9rem;
+  text-align: center;
+  color: var(--signal);
+  font-weight: 600;
+}
+
+.plaque__pull {
+  border-top: var(--keyline) solid var(--ink);
+}
+.plaque__pull form { display: block; }
+.plaque__pull button {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  color: #6c7b80;
+  padding: 0.5rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.plaque__pull button:hover { background: var(--signal); color: var(--enamel); }
+.plaque__pull button:focus-visible { outline: 3px solid var(--sun); outline-offset: -3px; }
+
+/* ---- empty wall -------------------------------------------------------- */
+
+.empty {
+  border: var(--keyline) dashed rgba(246, 239, 223, 0.45);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: #9fc4c3;
+}
+.empty b {
+  display: block;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--enamel);
+  margin-bottom: 0.4rem;
+}
+
+/* ---- conversion plaque ------------------------------------------------- */
+
+.convert {
+  margin-top: 2.5rem;
+  background: var(--signal);
+  color: var(--enamel);
+  border: var(--keyline) solid var(--ink);
+  padding: 1.25rem clamp(1rem, 3vw, 1.75rem) 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem 1.75rem;
+}
+.convert h2 {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-right: auto;
+  max-width: 14ch;
+  line-height: 1.05;
+}
+.convert .pair { flex: 0 1 9rem; }
+.convert .pair label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.convert .pair input {
+  width: 100%;
+  background: var(--enamel);
+  color: var(--ink);
+  border: var(--keyline) solid var(--ink);
+  padding: 0.4rem 0.6rem;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+.convert .pair input:focus-visible { outline: 3px solid var(--sun); outline-offset: 0; }
+.convert .to { padding-bottom: 0.6rem; font-weight: 600; }
+
+/* ---- narrow ------------------------------------------------------------ */
+
+@media (max-width: 560px) {
+  .plaques { grid-template-columns: 1fr; }
+  .header h1 { max-width: none; }
+  .add { width: 100%; }
+  .convert h2 { flex: 1 1 100%; max-width: none; margin-right: 0; }
+  .convert .pair { flex: 1 1 8rem; }
+  .convert .to { display: none; }
+}
