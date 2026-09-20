@@ -2,7 +2,7 @@
   <header class="header">
     <div>
       <h1>Temperature Compare</h1>
-      <p>Pick your destinations. Each plaque carries today's reading on both scales.</p>
+      <p>Fahrenheit up front, Celsius right under it, so you can say the same weather either way.</p>
     </div>
 
     <%= form_with url: cities_path, method: :post, class: "add" do |f| %>
@@ -27,18 +27,18 @@
             <h2 class="plaque__name"><%= weather[:city] %></h2>
 
             <p class="plaque__read">
-              <span class="plaque__c"><%= weather[:temp_c] %><sup>°C</sup></span>
-              <span class="plaque__f"><%= weather[:temp_f] %>°F</span>
+              <span class="plaque__primary"><%= degrees(weather[:temp_f]) %><sup>°F</sup></span>
+              <span class="plaque__secondary"><%= degrees(weather[:temp_c]) %>°C</span>
             </p>
 
             <div class="plaque__today">
               <div>
                 <i>Low</i>
-                <b><%= weather[:temp_min_c] %>°C · <%= weather[:temp_min_f] %>°F</b>
+                <b><%= degrees(weather[:temp_min_f]) %>°F · <%= degrees(weather[:temp_min_c]) %>°C</b>
               </div>
               <div>
                 <i>High</i>
-                <b><%= weather[:temp_max_c] %>°C · <%= weather[:temp_max_f] %>°F</b>
+                <b><%= degrees(weather[:temp_max_f]) %>°F · <%= degrees(weather[:temp_max_c]) %>°C</b>
               </div>
             </div>
           <% else %>
@@ -65,19 +65,19 @@
     <h2>Work it out yourself</h2>
 
     <div class="pair">
-      <label for="celsius-input">Celsius</label>
-      <input type="number" id="celsius-input" placeholder="0"
-             data-temperature-converter-target="celsius"
-             data-action="input->temperature-converter#convertFromCelsius">
+      <label for="fahrenheit-input">Fahrenheit</label>
+      <input type="number" id="fahrenheit-input" placeholder="32"
+             data-temperature-converter-target="fahrenheit"
+             data-action="input->temperature-converter#convertFromFahrenheit">
     </div>
 
     <span class="to" aria-hidden="true">is</span>
 
     <div class="pair">
-      <label for="fahrenheit-input">Fahrenheit</label>
-      <input type="number" id="fahrenheit-input" placeholder="32"
-             data-temperature-converter-target="fahrenheit"
-             data-action="input->temperature-converter#convertFromFahrenheit">
+      <label for="celsius-input">Celsius</label>
+      <input type="number" id="celsius-input" placeholder="0"
+             data-temperature-converter-target="celsius"
+             data-action="input->temperature-converter#convertFromCelsius">
     </div>
   </section>
 </div>
