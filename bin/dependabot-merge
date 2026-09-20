@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Nightly Dependabot merge sweep, intended to run from cron.
+#
+# This replaces a GitHub Actions workflow that polled a hardcoded list of CI job
+# names (scan_ruby/scan_js/lint/test) while the PR was still building. That
+# approach had two problems this one avoids by running after CI has settled:
+# the name list silently rots when a CI job is added or renamed, and an empty
+# API response during the race before check-runs register read as "everything
+# passed". Here we read the finished rollup and require every check present to
+# have succeeded, so the set of checks is discovered rather than declared.
+#
+# It also runs as you, not as the Dependabot-scoped GITHUB_TOKEN, which is what
+# makes statusCheckRollup readable at all -- that token can't see it.
+
+usage() {
+  cat <<'USAGE'
+Usage: bin/dependabot-merge [--repo OWNER/NAME] [--dry-run]
+
+  --repo     Repository to sweep (default: detected from cwd)
+  --dry-run  Report what would merge without merging
+USAGE
+}
+
+REPO=""
+DRY_RUN=false
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) REPO="${2:?--repo needs a value}"; shift 2 ;;
+    --dry-run) DRY_RUN=true; shift ;;
+    -h|--help) usage; exit 0 ;;
+    *) echo "unknown argument: $1" >&2; usage >&2; exit 2 ;;
+  esac
+done
+
+log() { printf '%s %s\n' "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$*"; }
+
+# Resolved once, and always passed explicitly: under cron the working
+# directory is not the checkout, so relying on gh's directory detection would
+# make the script's target depend on where it happened to be invoked from.
+if [ -z "$REPO" ]; then
+  REPO=$(gh repo view --json nameWithOwner --jq '.nameWithOwner') || {
+    echo "not in a repo and --repo not given" >&2
+    exit 2
+  }
+fi
+
+# Dependabot titles come in two shapes depending on whether the repo sets a
+# commit-message prefix: "Bump X from 1.2.3 to 1.2.4" and
+# "Build(deps-dev): Bump X from 4.48.0 to 4.49.0". Matching on "Bump ... from
+# ... to ..." without anchoring handles both, and bare majors ("from 6 to 7").
+major_bump() {
+  local title="$1" from to
+  [[ "$title" =~ [Bb]ump[[:space:]].+[[:space:]]from[[:space:]]v?([0-9][^[:space:]]*)[[:space:]]to[[:space:]]v?([0-9][^[:space:]]*) ]] || {
+    # An unparseable title is not a licence to merge blind.
+    return 0
+  }
+  from="${BASH_REMATCH[1]%%.*}"
+  to="${BASH_REMATCH[2]%%.*}"
+  [ "$from" != "$to" ]
+}
+
+checks_green() {
+  local rollup="$1" total failed pending
+  total=$(jq 'length' <<<"$rollup")
+  # Zero checks means CI has not reported yet (or never will); either way there
+  # is nothing to have passed, so refuse rather than treat silence as success.
+  [ "$total" -gt 0 ] || { echo "no checks reported"; return 1; }
+
+  pending=$(jq '[.[] | select(.status != "COMPLETED")] | length' <<<"$rollup")
+  [ "$pending" -eq 0 ] || { echo "$pending check(s) still running"; return 1; }
+
+  # NEUTRAL and SKIPPED are normal for path-filtered or conditional jobs.
+  failed=$(jq -r '[.[] | select(.conclusion | IN("SUCCESS","NEUTRAL","SKIPPED") | not)] | .[].name' <<<"$rollup")
+  [ -z "$failed" ] || { echo "failed: $(tr '\n' ' ' <<<"$failed")"; return 1; }
+
+  return 0
+}
+
+# Ported from the workflow this replaces. Unlike that one -- which fired once
+# per PR because it ran on the pull_request event -- this runs nightly against
+# the same open PRs, so it would re-comment every night. The marker below is an
+# HTML comment so it stays invisible in the rendered PR while remaining
+# greppable; a label would show up in the UI and a reaction cannot carry text.
+MAJOR_MARKER="<!-- dependabot-merge:major-notice -->"
+
+notify_major() {
+  local pr="$1"
+  # The second pattern matches notices left by the workflow this replaces, so
+  # PRs that are already open do not collect a duplicate on the first run.
+  if gh pr view "$pr" --repo "$REPO" --json comments \
+      --jq '.comments[].body' \
+      | grep -qF -e "$MAJOR_MARKER" -e "is a **major version update**"; then
+    return 0
+  fi
+
+  if [ "$DRY_RUN" = true ]; then
+    log "      (would comment on #$pr)"
+    return 0
+  fi
+
+  gh pr comment "$pr" --repo "$REPO" --body "$MAJOR_MARKER
+⚠️ This is a **major version update** and requires manual review before merging.
+
+Please review the changelog and test thoroughly before merging."
+}
+
+merged=0
+skipped=0
+
+prs=$(gh pr list --repo "$REPO" --author "app/dependabot" --state open \
+  --json number --jq '.[].number')
+
+[ -n "$prs" ] || { log "no open Dependabot PRs"; exit 0; }
+
+while IFS= read -r pr; do
+  [ -z "$pr" ] && continue
+
+  data=$(gh pr view "$pr" --repo "$REPO" \
+    --json title,mergeable,statusCheckRollup)
+  title=$(jq -r '.title' <<<"$data")
+  mergeable=$(jq -r '.mergeable' <<<"$data")
+  rollup=$(jq '.statusCheckRollup' <<<"$data")
+
+  if major_bump "$title"; then
+    log "SKIP  #$pr  major version bump -- $title"
+    notify_major "$pr"
+    skipped=$((skipped + 1))
+    continue
+  fi
+
+  # GitHub computes mergeability lazily, so a first read can legitimately say
+  # UNKNOWN; asking again after a moment usually settles it.
+  if [ "$mergeable" = "UNKNOWN" ]; then
+    sleep 3
+    mergeable=$(gh pr view "$pr" --repo "$REPO" --json mergeable --jq '.mergeable')
+  fi
+
+  if [ "$mergeable" != "MERGEABLE" ]; then
+    log "SKIP  #$pr  not mergeable ($mergeable) -- $title"
+    skipped=$((skipped + 1))
+    continue
+  fi
+
+  if ! reason=$(checks_green "$rollup"); then
+    log "SKIP  #$pr  $reason -- $title"
+    skipped=$((skipped + 1))
+    continue
+  fi
+
+  if [ "$DRY_RUN" = true ]; then
+    log "WOULD MERGE #$pr  $title"
+  else
+    gh pr merge "$pr" --repo "$REPO" --squash
+    log "MERGED #$pr  $title"
+  fi
+  merged=$((merged + 1))
+done <<<"$prs"
+
+log "done: $merged merged, $skipped skipped"
