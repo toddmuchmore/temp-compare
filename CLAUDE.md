@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Temperature Compare is a Rails 8 web application that allows users to compare current weather across multiple cities in both Celsius and Fahrenheit. It uses the OpenWeatherMap API for weather data and features a clean, responsive UI built with Tailwind CSS.
+Temperature Compare is a Rails 8 web application that allows users to compare current weather across multiple cities in both Celsius and Fahrenheit. It uses the OpenWeatherMap API for weather data and features a responsive UI built with hand-written CSS in `app/assets/stylesheets/application.css`.
 
 ## Development Commands
 
@@ -49,7 +49,7 @@ bin/brakeman                     # Security vulnerability scanning
 - Safely handles missing API keys and API failures
 
 **Frontend**
-- Uses Tailwind CSS for styling with responsive design
+- Hand-written CSS in `app/assets/stylesheets/application.css`, served by Propshaft with no build step
 - Stimulus controller for real-time temperature conversion (`temperature_converter_controller.js`)
 - Hotwire/Turbo for SPA-like navigation without JavaScript frameworks
 
@@ -71,7 +71,6 @@ bin/brakeman                     # Security vulnerability scanning
 
 - **Rails 8** with Propshaft asset pipeline
 - **HTTParty** for API requests
-- **Tailwind CSS** for styling
 - **Stimulus** for minimal JavaScript interactions
 - **solid_cable** for Action Cable connections
 - **rubocop-rails-omakase** for code style
