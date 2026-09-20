@@ -19,9 +19,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Work+Sans:wght@400;500;600&display=swap">
 
-    <%# Named explicitly rather than :app, which globs app/assets/**/*.css and
-        sorts application.css ahead of builds/tailwind.css — Tailwind's preflight
-        then lands after this design and resets it. Nothing here uses Tailwind. %>
+    <%# Named explicitly rather than :app: that globs app/assets/**/*.css, so any
+        stylesheet a future gem drops into the tree would load itself into every
+        page in glob order, ahead of or behind this one by accident. %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>

@@ -5,9 +5,9 @@ A minimal web app to compare current weather across multiple cities in both Cels
 ## Features
 - Search and add cities by name.
 - Display temperatures in °C and °F side-by-side.
-- Show weather conditions with icons.
+- Show weather conditions alongside each reading.
 - Persist selected cities in session.
-- Responsive design with Tailwind CSS.
+- Responsive design, hand-written CSS, no build step.
 
 ## Prerequisites
 - Ruby 3.2+ (check `.ruby-version`)
