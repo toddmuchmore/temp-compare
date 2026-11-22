@@ -17,6 +17,12 @@ on:
         default: true
 
 permissions:
+  # Not used directly, but `gh pr view --json statusCheckRollup` asks GraphQL for
+  # checkSuite{workflowRun{workflow{name}}}, and workflowRun is gated behind this
+  # scope. A public repo serves that field to any token, so dropping this appears
+  # harmless there and then fails only on private repos, with "Resource not
+  # accessible by integration" naming the workflowRun path.
+  actions: read
   checks: read
   statuses: read
   contents: write
